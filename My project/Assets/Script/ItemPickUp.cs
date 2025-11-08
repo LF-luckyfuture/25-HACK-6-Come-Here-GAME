@@ -22,6 +22,7 @@ public class ItemPickUp : MonoBehaviour
                 { 
                     case ItemType.EXP:
                         character.currentExp += (int)EXPAmount;
+                        character.UpdateEXPUI();
                         Destroy(gameObject);
                         break;
                 }

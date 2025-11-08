@@ -1,11 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.UI;
 public class Character : MonoBehaviour
 {
     [Header(" Ù–‘")]
-    [SerializeField]protected float maxHealth;
-    [SerializeField]protected float currentHealth;
+    [SerializeField]public float maxHealth;
+    [SerializeField]public float currentHealth;
     [SerializeField]public float ATK;
     [SerializeField]public int playerLevel;
     [SerializeField]public int currentExp;
@@ -22,12 +24,15 @@ public class Character : MonoBehaviour
     public Transform fistSwordTriPos;
     public GameObject deadUI;
     public GameObject deadVFX;
+    public SurvivalTime survivalTime;
     public bool isDead=false;
     private int maxLevel = 5;
     private float lastMacheteAttackTime;
     private float lastFistAttackTime;
     private Rigidbody2D rb;
     private SpriteRenderer sr;
+    [SerializeField] public Slider HP;
+    [SerializeField] public Slider EXP;
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -44,10 +49,11 @@ public class Character : MonoBehaviour
     public virtual void TakeDamage(float damage)
     {
         currentHealth -= damage;
-
+        UpdateHPUI();
         if (currentHealth <= 0)
         {
             Die();
+            survivalTime.OnPlayerDeath();
         }
     }
     public virtual void Die()
@@ -66,6 +72,7 @@ public class Character : MonoBehaviour
             PlayerValueTest();
             Move();
             FistAttack();
+            MacheteAttack();
         }
         else
         {
@@ -158,8 +165,17 @@ public class Character : MonoBehaviour
             {
                 currentHealth += regenRate;
                 currentHealth=Mathf.Min(currentHealth, maxHealth);
+                UpdateHPUI();
             }
             yield return new WaitForSeconds(regenInterval);
         }
+    }
+    public void UpdateHPUI()
+    {
+        HP.value = (float)currentHealth / maxHealth;
+    }
+    public void UpdateEXPUI()
+    {
+        EXP.value = (float)currentExp / maxPlayerExp;
     }
 }
