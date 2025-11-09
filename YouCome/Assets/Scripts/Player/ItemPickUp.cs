@@ -10,6 +10,7 @@ public class ItemPickUp : MonoBehaviour
     }
     public ItemType itemType;
     public float EXPAmount=1f;
+    public AudioTest AudioTest;
     private void OnTriggerEnter2D(Collider2D other)
     {
         
@@ -24,6 +25,7 @@ public class ItemPickUp : MonoBehaviour
                         character.currentExp += (int)EXPAmount;
                         character.UpdateEXPUI();
                         Destroy(gameObject);
+                        AudioTest.GetEXP();
                         break;
                 }
             }

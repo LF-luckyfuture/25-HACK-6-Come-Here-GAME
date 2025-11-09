@@ -5,6 +5,7 @@ public class WeaponSwitch : MonoBehaviour
 {
     public GameObject[] weapons;
     private int currentWeaponIndex = 0;
+    public AudioTest AudioTest;
     void Start()
     {
         foreach (GameObject weapon in weapons)
@@ -25,5 +26,13 @@ public class WeaponSwitch : MonoBehaviour
         weapons[currentWeaponIndex].SetActive(false);
         currentWeaponIndex = (currentWeaponIndex + 1) % weapons.Length;
         weapons[currentWeaponIndex].SetActive(true);
+        if (currentWeaponIndex==0)
+        {
+            AudioTest.FistSwitch();
+        }
+        else if (currentWeaponIndex==1)
+        {
+            AudioTest.MacheteSwitch();
+        }
     }
 }
