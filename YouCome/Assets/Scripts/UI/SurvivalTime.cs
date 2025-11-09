@@ -23,7 +23,7 @@ public class SurvivalTime : MonoBehaviour
         int seconds = Mathf.FloorToInt(currentTime % 60);
         survivalTimeText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
     }
-    public void OnPlayerDeath()
+    public void StopTime()
     {
         isTimeRunning = false;
     }

@@ -53,7 +53,7 @@ public class Character : MonoBehaviour
         if (currentHealth <= 0)
         {
             Die();
-            survivalTime.OnPlayerDeath();
+            survivalTime.StopTime();
         }
     }
     public virtual void Die()
