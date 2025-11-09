@@ -96,6 +96,7 @@ GameObject:
   - component: {fileID: 3134126708489649531}
   - component: {fileID: 4898660051715790596}
   - component: {fileID: 4609292574298550412}
+  - component: {fileID: 2742671514822406941}
   m_Layer: 0
   m_Name: Enemy1
   m_TagString: Enemy
@@ -194,8 +195,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   theRB: {fileID: 4898660051715790596}
-  moveSpeed: 2
+  moveSpeed: 1
   target: {fileID: 0}
+  enemyHealth: 100
   damage: 5
   hitWaitTime: 1
   hitCounter: 0
+--- !u!114 &2742671514822406941
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5420069300374644846}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f2354ce7508e8d49af76b3a3416fd05, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dropItems:
+  - itemPrefab: {fileID: 2160047209810968109, guid: 091c2dec4d9076141a6cd2395a14413f,
+      type: 3}
+    dropChance: 1
+  dropForce: 2
+  dropRadius: 0.5
