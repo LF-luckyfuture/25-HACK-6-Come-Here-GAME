@@ -1,8 +1,9 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 public class SurvivalTime : MonoBehaviour
 {
-    public Text survivalTimeText;
+    public TextMeshProUGUI survivalTimeText;
     private float startTime;
     private bool isTimeRunning=true;
     void Start()
@@ -18,7 +19,7 @@ public class SurvivalTime : MonoBehaviour
     }
     void UpdateTime()
     {
-        float currentTime = Time.time-startTime;
+        float currentTime = Time.time - startTime;
         int minutes = Mathf.FloorToInt(currentTime / 60);
         int seconds = Mathf.FloorToInt(currentTime % 60);
         survivalTimeText.text = string.Format("{0:00}:{1:00}", minutes, seconds);

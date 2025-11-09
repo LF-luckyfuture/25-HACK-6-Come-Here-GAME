@@ -21,13 +21,7 @@ public class EnemyDrop : MonoBehaviour
             {
                 Vector2 dropPosition = transform.position + Random.insideUnitSphere * dropRadius;
                 GameObject droppedItem = Instantiate(dropItem.itemPrefab, dropPosition, Quaternion.identity);
-                Rigidbody2D rb = droppedItem.GetComponent<Rigidbody2D>();
-                if (rb != null)
-                {
-                    Vector2 forceDirection = Random.insideUnitCircle.normalized;
-                    forceDirection.y = Mathf.Abs(forceDirection.y)+0.3f;
-                    rb.AddForce(forceDirection * dropForce, ForceMode2D.Impulse);
-                }
+                        
             }
         }
     }
