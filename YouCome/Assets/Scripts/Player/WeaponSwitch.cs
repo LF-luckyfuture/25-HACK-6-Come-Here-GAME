@@ -5,7 +5,7 @@ public class WeaponSwitch : MonoBehaviour
 {
     public GameObject[] weapons;
     private int currentWeaponIndex = 0;
-    public AudioTest AudioTest;
+    public GameAudioTest AudioTest;
     void Start()
     {
         foreach (GameObject weapon in weapons)

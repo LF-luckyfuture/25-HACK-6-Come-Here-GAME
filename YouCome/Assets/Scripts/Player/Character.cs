@@ -5,7 +5,13 @@ using UnityEngine.Events;
 using UnityEngine.UI;
 public class Character : MonoBehaviour
 {
-    public AudioTest audioTest;
+    private SpriteRenderer spriteRenderer;
+    public Sprite frontImage;
+    public Sprite backImage;
+    public Sprite sideImage;
+    public GameAudioTest audioTest;
+    public GameObject fist;
+    public GameObject machete;
     [Header(" Ù–‘")]
     [SerializeField]public float maxHealth;
     [SerializeField]public float currentHealth;
@@ -40,6 +46,11 @@ public class Character : MonoBehaviour
         sr = GetComponent<SpriteRenderer>();
         currentHealth = maxHealth;
         StartCoroutine(RegenerateHealth());
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer != null && frontImage != null)
+        {
+            spriteRenderer.sprite = frontImage;
+        }
     }
     private void Awake()
     {
@@ -87,13 +98,21 @@ public class Character : MonoBehaviour
         float moveY = Input.GetAxis("Vertical");
         Vector2 moveDirection = new Vector2(moveX, moveY).normalized;
         rb.velocity = moveDirection * moveSpeed;
-        if (moveDirection.x<0)
+        if (Mathf.Abs(moveY) > Mathf.Abs(moveX))
         {
-            sr.flipX = true;
+            spriteRenderer.sprite = moveY > 0 ? backImage : frontImage;
         }
-        else if (moveDirection.x>0)
+        else if (moveX != 0)
         {
-            sr.flipX = false;
+            spriteRenderer.sprite = sideImage;
+            if (moveDirection.x > 0)
+            {
+                sr.flipX = true;
+            }
+            else if (moveDirection.x < 0)
+            {
+                sr.flipX = false;
+            }
         }
     }
     public void ExpTest()
@@ -144,7 +163,7 @@ public class Character : MonoBehaviour
     }
     public void MacheteAttack()
     {
-        if (Input.GetMouseButtonDown(0)&&Time.time>=lastMacheteAttackTime+macheteAttackCooldown)
+        if (Input.GetMouseButtonDown(0)&&Time.time>=lastMacheteAttackTime+macheteAttackCooldown&&machete.activeInHierarchy)
         {
             lastMacheteAttackTime = Time.time;
             Instantiate(swordTrigger, swordTriPos.position, swordTriPos.rotation, swordTriPos);
@@ -153,7 +172,7 @@ public class Character : MonoBehaviour
     }
     public void FistAttack()
     {
-        if (Input.GetMouseButtonDown(0)&&Time.time>=lastFistAttackTime+fistAttackCooldown)
+        if (Input.GetMouseButtonDown(0)&&Time.time>=lastFistAttackTime+fistAttackCooldown&&fist.activeInHierarchy)
         {
             lastFistAttackTime = Time.time;
             Instantiate(fistSwordTri, fistSwordTriPos.position, fistSwordTriPos.rotation, fistSwordTriPos);
