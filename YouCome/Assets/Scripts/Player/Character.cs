@@ -33,6 +33,7 @@ public class Character : MonoBehaviour
     public GameObject deadVFX;
     public SurvivalTime survivalTime;
     public bool isDead=false;
+    public bool isAutoAttack=false;
     private int maxLevel = 5;
     private float lastMacheteAttackTime;
     private float lastFistAttackTime;
@@ -163,6 +164,12 @@ public class Character : MonoBehaviour
     }
     public void MacheteAttack()
     {
+        if (isAutoAttack==true && Time.time >= lastMacheteAttackTime + macheteAttackCooldown && machete.activeInHierarchy)
+        {
+            lastMacheteAttackTime = Time.time;
+            Instantiate(swordTrigger, swordTriPos.position, swordTriPos.rotation, swordTriPos);
+            audioTest.MacheteAttack();
+        }
         if (Input.GetMouseButtonDown(0)&&Time.time>=lastMacheteAttackTime+macheteAttackCooldown&&machete.activeInHierarchy)
         {
             lastMacheteAttackTime = Time.time;
@@ -172,6 +179,12 @@ public class Character : MonoBehaviour
     }
     public void FistAttack()
     {
+        if (isAutoAttack == true && Time.time >= lastFistAttackTime + fistAttackCooldown && fist.activeInHierarchy)
+        {
+            lastFistAttackTime = Time.time;
+            Instantiate(fistSwordTri, fistSwordTriPos.position, fistSwordTriPos.rotation, fistSwordTriPos);
+            audioTest.FistAttack();
+        }
         if (Input.GetMouseButtonDown(0)&&Time.time>=lastFistAttackTime+fistAttackCooldown&&fist.activeInHierarchy)
         {
             lastFistAttackTime = Time.time;
@@ -199,5 +212,16 @@ public class Character : MonoBehaviour
     public void UpdateEXPUI()
     {
         EXP.value = (float)currentExp / maxPlayerExp;
+    }
+    public void AddAttack(float percentage)
+    {
+        float maxAttack = 1.09f*(40f + playerLevel * 10f);
+        ATK = Mathf.Min(ATK + percentage, maxAttack);
+    }
+    public void AddSpeed(float bonusPercentage)
+    {
+        float maxMoveSpeed = 1.2f * moveSpeed;
+        float bonusVaule = moveSpeed * (bonusPercentage / 100);
+        moveSpeed = Mathf.Min(moveSpeed + bonusVaule, maxMoveSpeed);
     }
 }
