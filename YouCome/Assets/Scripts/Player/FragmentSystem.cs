@@ -1,63 +1,122 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections.Generic;
+
 public class FragmentSystem : MonoBehaviour
 {
-    // 碎片概率（分开设置）
+    // [原有的变量声明保持不变]
     [Header("碎片概率")]
-    [Range(0, 100)] public float planeFragmentProbability = 30; // 小飞机碎片概率
-    [Range(0, 100)] public float knifeFragmentProbability = 5; // 朴刀碎片概率
+    [Range(0, 100)] public float planeFragmentProbability = 30;
+    [Range(0, 100)] public float knifeFragmentProbability = 5;
 
-    // 碎片获取间隔
     [Header("碎片获取")]
     [Range(0, 60)] public float fragmentInterval = 10;
     private float nextFragmentTime;
 
-    // 拼图系统（分开统计两种碎片）
     [Header("拼图系统")]
-    public int fragmentsPerPuzzle = 5; // 每种碎片需收集的数量
-    private int currentPlaneFragments = 0; // 小飞机碎片当前数量
-    private int currentKnifeFragments = 0; // 朴刀碎片当前数量
+    public int fragmentsPerPuzzle = 5;
+    private int currentPlaneFragments = 0;
+    private int currentKnifeFragments = 0;
 
-    // 效果参数（分开设置）
     [Header("效果参数")]
-    [Range(0, 20)] public float planeSpeedIncrease = 3.5f; // 小飞机速度提升百分比
-    [Range(0, 9)] public float knifeAttackIncrease = 2.5f; // 朴刀攻击力提升数值
+    [Range(0, 20)] public float planeSpeedIncrease = 3.5f;
+    [Range(0, 9)] public float knifeAttackIncrease = 2.5f;
+
+    [Header("字体设置")]
+    public TMP_FontAsset fallbackFont; // 备用字体
 
     // 引用
     public GameObject player;
     private Character characterScript;
 
-    // UI相关
     [Header("UI设置")]
     public GameObject puzzleUI;
-    public TextMeshProUGUI fragmentTypeText; // 显示获得的碎片类型
-    public TextMeshProUGUI fragmentCountText; // 显示当前碎片进度
-    public TextMeshProUGUI effectText; // 显示效果提示
+    public TextMeshProUGUI fragmentTypeText;
+    public TextMeshProUGUI fragmentCountText;
+    public TextMeshProUGUI effectText;
     public float uiDisplayTime = 5f;
     private bool isUIActive = false;
     private float uiCloseTime;
 
+    // 预定义的文本映射，避免动态生成复杂字符串
+    private Dictionary<string, string> textTemplates;
+
     void Start()
     {
         nextFragmentTime = Time.time + fragmentInterval;
-        characterScript = player.GetComponent<Character>(); // 缓存Character脚本
+        characterScript = player.GetComponent<Character>();
+
+        // 初始化文本模板
+        InitializeTextTemplates();
 
         // 确保UI初始隐藏
         if (puzzleUI != null)
             puzzleUI.SetActive(false);
+
+        // 检查并确保字体支持
+        EnsureFontSupport();
+    }
+
+    void InitializeTextTemplates()
+    {
+        textTemplates = new Dictionary<string, string>
+        {
+            {"plane_fragment", "小飞机碎片"},
+            {"knife_fragment", "朴刀碎片"},
+            {"plane_puzzle", "小飞机拼图"},
+            {"knife_puzzle", "朴刀拼图"},
+            {"get_plane", "获得小飞机碎片！"},
+            {"get_knife", "获得朴刀碎片！"},
+            {"complete_plane", "拼图完成！速度大幅提升！"},
+            {"complete_knife", "拼图完成！攻击力大幅提升！"},
+            {"current_fragment", "当前碎片："},
+            {"collect_progress", "收集进度："},
+            {"no_fragment", "未获得碎片，再试试吧～"}
+        };
+    }
+
+    void EnsureFontSupport()
+    {
+        // 设置备用字体
+        if (fallbackFont != null)
+        {
+            // 获取所有TMP组件并设置备用字体
+            TextMeshProUGUI[] textComponents = GetComponentsInChildren<TextMeshProUGUI>(true);
+            foreach (var textComponent in textComponents)
+            {
+                // 如果当前字体不支持中文，使用备用字体
+                if (textComponent.font != null && !IsFontSupportChinese(textComponent.font))
+                {
+                    textComponent.font = fallbackFont;
+                }
+
+                // 确保字体包含所需字符
+                textComponent.ForceMeshUpdate();
+            }
+        }
+    }
+
+    bool IsFontSupportChinese(TMP_FontAsset font)
+    {
+        // 简单的检查：测试几个常用中文字符
+        string testChars = "小飞机刀朴";
+        foreach (char c in testChars)
+        {
+            if (!font.HasCharacter(c))
+                return false;
+        }
+        return true;
     }
 
     void Update()
     {
-        // 检查是否可获取碎片（非UI激活状态）
         if (Time.time >= nextFragmentTime && !isUIActive)
         {
             TryGetFragment();
             nextFragmentTime = Time.time + fragmentInterval;
         }
 
-        // 处理UI关闭（计时或按任意键）
         if (isUIActive)
         {
             if (Time.time >= uiCloseTime || Input.anyKeyDown)
@@ -67,35 +126,30 @@ public class FragmentSystem : MonoBehaviour
         }
     }
 
-    // 尝试获取碎片（随机获取一种或不获取）
     void TryGetFragment()
     {
         float randomValue = Random.Range(0, 100);
 
-        // 优先判断小飞机碎片
         if (randomValue <= planeFragmentProbability)
         {
             currentPlaneFragments++;
-            ShowPuzzleUI("小飞机碎片", currentPlaneFragments, "获得小飞机碎片！");
-            Debug.Log("获得小飞机碎片！当前进度: " + currentPlaneFragments + "/" + fragmentsPerPuzzle);
-            CheckPlanePuzzleCompletion(); // 检查小飞机碎片是否集齐
+            ShowPuzzleUI(textTemplates["plane_fragment"], currentPlaneFragments, textTemplates["get_plane"]);
+            Debug.Log("获得小飞机碎片！当前数量: " + currentPlaneFragments + "/" + fragmentsPerPuzzle);
+            CheckPlanePuzzleCompletion();
         }
-        // 再判断朴刀碎片
         else if (randomValue <= planeFragmentProbability + knifeFragmentProbability)
         {
             currentKnifeFragments++;
-            ShowPuzzleUI("朴刀碎片", currentKnifeFragments, "获得朴刀碎片！");
-            Debug.Log("获得朴刀碎片！当前进度: " + currentKnifeFragments + "/" + fragmentsPerPuzzle);
-            CheckKnifePuzzleCompletion(); // 检查朴刀碎片是否集齐
+            ShowPuzzleUI(textTemplates["knife_fragment"], currentKnifeFragments, textTemplates["get_knife"]);
+            Debug.Log("获得朴刀碎片！当前数量: " + currentKnifeFragments + "/" + fragmentsPerPuzzle);
+            CheckKnifePuzzleCompletion();
         }
         else
         {
-            // 未获得任何碎片（可选：不显示UI，或显示提示）
-            Debug.Log("未获得碎片，再试试吧～");
+            Debug.Log(textTemplates["no_fragment"]);
         }
     }
 
-    // 检查小飞机碎片是否集齐
     void CheckPlanePuzzleCompletion()
     {
         if (currentPlaneFragments >= fragmentsPerPuzzle)
@@ -104,7 +158,6 @@ public class FragmentSystem : MonoBehaviour
         }
     }
 
-    // 检查朴刀碎片是否集齐
     void CheckKnifePuzzleCompletion()
     {
         if (currentKnifeFragments >= fragmentsPerPuzzle)
@@ -113,49 +166,49 @@ public class FragmentSystem : MonoBehaviour
         }
     }
 
-    // 小飞机拼图完成，触发速度效果
     void CompletePlanePuzzle()
     {
-        currentPlaneFragments = 0; // 重置碎片计数
-        characterScript.AddSpeed(planeSpeedIncrease); // 仅触发小飞机效果
-        ShowPuzzleUI("小飞机拼图", fragmentsPerPuzzle, "拼图完成！速度大幅提升！");
+        currentPlaneFragments = 0;
+        characterScript.AddSpeed(planeSpeedIncrease);
+        ShowPuzzleUI(textTemplates["plane_puzzle"], fragmentsPerPuzzle, textTemplates["complete_plane"]);
         Debug.Log("小飞机拼图完成！已获得速度提升效果");
     }
 
-    // 朴刀拼图完成，触发攻击力效果
     void CompleteKnifePuzzle()
     {
-        currentKnifeFragments = 0; // 重置碎片计数
-        characterScript.AddAttack(knifeAttackIncrease); // 仅触发朴刀效果
-        ShowPuzzleUI("朴刀拼图", fragmentsPerPuzzle, "拼图完成！攻击力大幅提升！");
+        currentKnifeFragments = 0;
+        characterScript.AddAttack(knifeAttackIncrease);
+        ShowPuzzleUI(textTemplates["knife_puzzle"], fragmentsPerPuzzle, textTemplates["complete_knife"]);
         Debug.Log("朴刀拼图完成！已获得攻击力提升效果");
     }
 
-    // 显示拼图UI（带碎片类型、进度、提示）
     void ShowPuzzleUI(string fragmentType, int currentCount, string message)
     {
         if (puzzleUI != null)
         {
-            Time.timeScale = 0; // 暂停游戏
+            Time.timeScale = 0;
 
-            // 更新UI内容
-            fragmentTypeText.text = "当前碎片：" + fragmentType;
-            fragmentCountText.text = "收集进度：" + currentCount + "/" + fragmentsPerPuzzle;
+            // 使用预定义的模板组合文本，避免动态字符串拼接
+            fragmentTypeText.text = textTemplates["current_fragment"] + fragmentType;
+            fragmentCountText.text = textTemplates["collect_progress"] + currentCount + "/" + fragmentsPerPuzzle;
             effectText.text = message;
 
-            // 显示UI
+            // 强制更新文本网格
+            fragmentTypeText.ForceMeshUpdate();
+            fragmentCountText.ForceMeshUpdate();
+            effectText.ForceMeshUpdate();
+
             puzzleUI.SetActive(true);
             isUIActive = true;
             uiCloseTime = Time.realtimeSinceStartup + uiDisplayTime;
         }
     }
 
-    // 关闭拼图UI，恢复游戏
     void ClosePuzzleUI()
     {
         if (puzzleUI != null)
         {
-            Time.timeScale = 1; //恢复游戏
+            Time.timeScale = 1;
             puzzleUI.SetActive(false);
             isUIActive = false;
         }

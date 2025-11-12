@@ -26,6 +26,7 @@ public class EnemySpawner : MonoBehaviour
 
     // 添加波次状态控制
     private bool isSpawning = true;
+    private bool isWaitingForNextWave = false;
 
     // Start is called before the first frame update
     void Start()
@@ -60,9 +61,9 @@ public class EnemySpawner : MonoBehaviour
                 }
 
                 // 检查是否切换到下一波
-                if (waveCounter <= 0)
+                if (waveCounter <= 0 && !isWaitingForNextWave)
                 {
-                    GoToNextWave();
+                    StartCoroutine(WaitBeforeNextWave());
                 }
             }
         }
@@ -73,39 +74,53 @@ public class EnemySpawner : MonoBehaviour
         CleanupDistantEnemies();
     }
 
+    // 在下一波开始前等待一段时间
+    IEnumerator WaitBeforeNextWave()
+    {
+        isWaitingForNextWave = true;
+
+        // 等待所有敌人都被清除，或者等待固定时间
+        float waitTime = 3f; // 可以调整这个等待时间
+        Debug.Log($"等待 {waitTime} 秒后开始下一波");
+        yield return new WaitForSeconds(waitTime);
+
+        // 也可以选择等待直到场景中没有敌人
+        // yield return new WaitUntil(() => GameObject.FindGameObjectsWithTag("Enemy").Length == 0);
+
+        GoToNextWave();
+        isWaitingForNextWave = false;
+    }
+
     void CleanupDistantEnemies()
     {
-        int checkTarget = enemyToCheck + checkPerFrame;
+        if (spawnedEnemies.Count == 0) return;
 
-        while (enemyToCheck < checkTarget)
+        int checkTarget = Mathf.Min(enemyToCheck + checkPerFrame, spawnedEnemies.Count);
+
+        for (int i = enemyToCheck; i < checkTarget; i++)
         {
-            if (enemyToCheck < spawnedEnemies.Count)
+            if (i < spawnedEnemies.Count && spawnedEnemies[i] != null)
             {
-                if (spawnedEnemies[enemyToCheck] != null)
+                if (Vector3.Distance(transform.position, spawnedEnemies[i].transform.position) > despawnDistance)
                 {
-                    if (Vector3.Distance(transform.position, spawnedEnemies[enemyToCheck].transform.position) > despawnDistance)
-                    {
-                        Destroy(spawnedEnemies[enemyToCheck]);
-                        spawnedEnemies.RemoveAt(enemyToCheck);
-                        checkTarget--;
-                    }
-                    else
-                    {
-                        enemyToCheck++;
-                    }
-                }
-                else
-                {
-                    spawnedEnemies.RemoveAt(enemyToCheck);
+                    Destroy(spawnedEnemies[i]);
+                    spawnedEnemies.RemoveAt(i);
+                    i--; // 调整索引
                     checkTarget--;
                 }
             }
-            else
+            else if (i < spawnedEnemies.Count)
             {
-                enemyToCheck = 0;
-                checkTarget = 0;
-                break; // 添加break避免无限循环
+                spawnedEnemies.RemoveAt(i);
+                i--;
+                checkTarget--;
             }
+        }
+
+        enemyToCheck = checkTarget;
+        if (enemyToCheck >= spawnedEnemies.Count)
+        {
+            enemyToCheck = 0;
         }
     }
 
@@ -151,17 +166,53 @@ public class EnemySpawner : MonoBehaviour
 
         if (currentWave >= waves.Count)
         {
+            // 所有波次结束后的处理
+            // 方案1：循环波次
             currentWave = 0;
-            // 所有波次结束，可以选择循环或者停止生成
-            Debug.Log("所有波次已完成！");
-            isSpawning = false;
-            return;
+            Debug.Log("重新开始波次循环！");
+
+            // 方案2：停止生成并显示胜利信息
+            // Debug.Log("所有波次已完成！游戏胜利！");
+            // isSpawning = false;
+            // return;
+
+            // 方案3：增加难度后继续
+            // IncreaseDifficulty();
+            // currentWave = 0;
         }
 
         waveCounter = waves[currentWave].waveLength;
         spawnCounter = waves[currentWave].timeBetweenSpawns;
 
         Debug.Log($"进入第 {currentWave + 1} 波，持续时间: {waveCounter}秒，生成间隔: {spawnCounter}秒");
+    }
+
+    // 可选：随着波次增加难度
+    private void IncreaseDifficulty()
+    {
+        foreach (var wave in waves)
+        {
+            // 例如：减少生成间隔，增加波次长度等
+            wave.timeBetweenSpawns *= 0.9f; // 生成更快
+            wave.waveLength *= 1.1f; // 波次更长
+        }
+    }
+
+    // 添加一个方法来手动开始/停止生成
+    public void SetSpawning(bool spawning)
+    {
+        isSpawning = spawning;
+    }
+
+    // 添加一个方法来获取当前波次信息
+    public int GetCurrentWave()
+    {
+        return currentWave + 1;
+    }
+
+    public int GetTotalWaves()
+    {
+        return waves.Count;
     }
 }
 
