@@ -13,77 +13,162 @@ public class EnemyController : MonoBehaviour
     public float hitWaitTime = 1f;
     public float hitCounter;
 
-    private EnemyDrop enemyDrop;
-
-    private Animator animator;
+    [Header("动画组件")]
+    public Animator animator;
     public float attackRange = 1.5f;
 
     private const string IS_WALKING_PARAM = "IsWalking";
-    private const string IS_ATTACKING_PARAM = "IsAttacking";
-
     private const string ATTACK_TRIGGER_PARAM = "Attack";
 
-    // Start is called before the first frame update
+    private EnemyDrop enemyDrop;
+    private bool isAttacking = false;
+
     void Start()
     {
-        target = FindObjectOfType<Character>().transform;
+        // 确保能找到目标
+        if (target == null)
+        {
+            GameObject player = GameObject.FindGameObjectWithTag("Player");
+            if (player != null)
+            {
+                target = player.transform;
+            }
+        }
+
         enemyHealth = 100f;
         enemyDrop = GetComponent<EnemyDrop>();
 
-        // 获取Animator组件
-        animator = GetComponent<Animator>();
-
-        // 确保Animator存在
         if (animator == null)
         {
-            Debug.LogError("Animator组件未找到！请确保敌人对象上有Animator组件。");
+            animator = GetComponent<Animator>();
+            if (animator == null)
+            {
+                Debug.LogError("Animator未找到！");
+            }
         }
+
+        Debug.Log("EnemyController初始化完成，可以接收动画事件");
     }
 
-    // Update is called once per frame
     void Update()
     {
-        theRB.velocity = (target.position - transform.position).normalized * moveSpeed;
-        // 计算与目标的距离
+        if (target == null || animator == null) return;
+
+        // 如果正在攻击，不处理移动逻辑
+        if (isAttacking)
+        {
+            // 攻击时确保停止移动
+            StopMoving();
+            SetWalkingAnimation(false);
+            return;
+        }
+
         float distanceToTarget = Vector2.Distance(transform.position, target.position);
 
-        // 根据距离决定行为
         if (distanceToTarget > attackRange)
         {
-            // 在攻击范围外，走向目标
+            // 在攻击范围外 - 走路
             MoveTowardsTarget();
             SetWalkingAnimation(true);
         }
         else
         {
-            // 在攻击范围内，停止移动
+            // 在攻击范围内 - 停止走路，准备攻击
             StopMoving();
             SetWalkingAnimation(false);
 
-            // 处理攻击冷却
-            if (hitCounter > 0f)
+            if (hitCounter <= 0f)
             {
-                hitCounter -= Time.deltaTime;
-            }
-            else
-            {
-                // 攻击玩家并触发攻击动画
                 AttackTarget();
                 hitCounter = hitWaitTime;
             }
         }
-    }
 
-
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if(collision.gameObject.tag == "Player" && hitCounter <= 0f)
+        // 更新攻击冷却
+        if (hitCounter > 0f)
         {
-            Character.instance.TakeDamage(damage);
-
-            hitCounter = hitWaitTime;
+            hitCounter -= Time.deltaTime;
         }
     }
+
+    void MoveTowardsTarget()
+    {
+        if (!isAttacking) // 只有不在攻击时才能移动
+        {
+            theRB.velocity = (target.position - transform.position).normalized * moveSpeed;
+        }
+    }
+
+    void StopMoving()
+    {
+        theRB.velocity = Vector2.zero;
+    }
+
+    void SetWalkingAnimation(bool isWalking)
+    {
+        if (animator != null && !isAttacking) // 攻击时不设置走路状态
+        {
+            animator.SetBool(IS_WALKING_PARAM, isWalking);
+        }
+    }
+
+    void AttackTarget()
+    {
+        // 设置攻击状态
+        isAttacking = true;
+        StopMoving();
+        SetWalkingAnimation(false);
+
+        // 触发攻击动画
+        animator.SetTrigger(ATTACK_TRIGGER_PARAM);
+
+        // 对玩家造成伤害
+        if (Character.instance != null)
+        {
+            Character.instance.TakeDamage(damage);
+        }
+
+        Debug.Log("攻击触发！");
+    }
+
+    // === 动画事件方法 ===
+    // 这些方法必须public才能被动画事件调用
+
+    public void OnAttackStart()
+    {
+        Debug.Log("OnAttackStart事件被调用");
+        isAttacking = true;
+        StopMoving();
+        SetWalkingAnimation(false);
+    }
+
+    public void OnAttackEnd()
+    {
+        Debug.Log("OnAttackEnd事件被调用");
+        isAttacking = false;
+
+        // 立即检查当前状态
+        if (target != null)
+        {
+            float distanceToTarget = Vector2.Distance(transform.position, target.position);
+            if (distanceToTarget > attackRange)
+            {
+                SetWalkingAnimation(true);
+            }
+        }
+    }
+
+    // 可选：添加一个更具体命名的方法
+    public void OnAttackAnimationStart()
+    {
+        OnAttackStart();
+    }
+
+    public void OnAttackAnimationEnd()
+    {
+        OnAttackEnd();
+    }
+
     public void TakeDamage(float damageAmount)
     {
         enemyHealth -= damageAmount;
@@ -96,40 +181,4 @@ public class EnemyController : MonoBehaviour
             Destroy(gameObject);
         }
     }
-
-    void MoveTowardsTarget()
-    {
-        theRB.velocity = (target.position - transform.position).normalized * moveSpeed;
-    }
-
-    // 停止移动
-    void StopMoving()
-    {
-        theRB.velocity = Vector2.zero;
-    }
-
-    // 设置走路动画状态
-    void SetWalkingAnimation(bool isWalking)
-    {
-        if (animator != null)
-        {
-            animator.SetBool(IS_WALKING_PARAM, isWalking);
-        }
-    }
-
-    // 攻击目标
-    void AttackTarget()
-    {
-        // 这里可以添加攻击逻辑，比如播放攻击音效等
-        Character.instance.TakeDamage(damage);
-    }
-
-    void TriggerAttackAnimation()
-    {
-        if (animator != null)
-        {
-            animator.SetTrigger(ATTACK_TRIGGER_PARAM);
-        }
-    }
-
 }
