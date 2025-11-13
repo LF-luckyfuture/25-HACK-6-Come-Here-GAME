@@ -29,6 +29,7 @@ public class FragmentSystem : MonoBehaviour
     // ÒýÓÃ
     public GameObject player;
     private Character characterScript;
+    public GameObject deadUI;
 
     [Header("UIÉèÖÃ")]
     public GameObject puzzleUI;
@@ -111,17 +112,20 @@ public class FragmentSystem : MonoBehaviour
 
     void Update()
     {
-        if (Time.time >= nextFragmentTime && !isUIActive)
+        if (!deadUI.activeInHierarchy)
         {
-            TryGetFragment();
-            nextFragmentTime = Time.time + fragmentInterval;
-        }
-
-        if (isUIActive)
-        {
-            if (Time.time >= uiCloseTime || Input.anyKeyDown)
+            if (Time.time >= nextFragmentTime && !isUIActive)
             {
-                ClosePuzzleUI();
+                TryGetFragment();
+                nextFragmentTime = Time.time + fragmentInterval;
+            }
+
+            if (isUIActive)
+            {
+                if (Time.time >= uiCloseTime || Input.anyKeyDown)
+                {
+                    ClosePuzzleUI();
+                }
             }
         }
     }
