@@ -33,9 +33,11 @@ public class FragmentSystem : MonoBehaviour
 
     [Header("UI设置")]
     public GameObject puzzleUI;
-    public TextMeshProUGUI fragmentTypeText;
+    public GameObject puzzlePlaneUI;
     public TextMeshProUGUI fragmentCountText;
     public TextMeshProUGUI effectText;
+    public TextMeshProUGUI planeFragmentCountText;
+    public TextMeshProUGUI planeEffectText;
     public float uiDisplayTime = 5f;
     private bool isUIActive = false;
     private float uiCloseTime;
@@ -125,6 +127,7 @@ public class FragmentSystem : MonoBehaviour
                 if (Time.time >= uiCloseTime || Input.anyKeyDown)
                 {
                     ClosePuzzleUI();
+                    ClosePuzzlePlaneUI();
                 }
             }
         }
@@ -137,20 +140,14 @@ public class FragmentSystem : MonoBehaviour
         if (randomValue <= planeFragmentProbability)
         {
             currentPlaneFragments++;
-            ShowPuzzleUI(textTemplates["plane_fragment"], currentPlaneFragments, textTemplates["get_plane"]);
-            Debug.Log("获得小飞机碎片！当前数量: " + currentPlaneFragments + "/" + fragmentsPerPuzzle);
+            ShowPuzzlePlaneUI(textTemplates["plane_fragment"], currentPlaneFragments, textTemplates["get_plane"]);
             CheckPlanePuzzleCompletion();
         }
         else if (randomValue <= planeFragmentProbability + knifeFragmentProbability)
         {
             currentKnifeFragments++;
             ShowPuzzleUI(textTemplates["knife_fragment"], currentKnifeFragments, textTemplates["get_knife"]);
-            Debug.Log("获得朴刀碎片！当前数量: " + currentKnifeFragments + "/" + fragmentsPerPuzzle);
             CheckKnifePuzzleCompletion();
-        }
-        else
-        {
-            Debug.Log(textTemplates["no_fragment"]);
         }
     }
 
@@ -174,8 +171,7 @@ public class FragmentSystem : MonoBehaviour
     {
         currentPlaneFragments = 0;
         characterScript.AddSpeed(planeSpeedIncrease);
-        ShowPuzzleUI(textTemplates["plane_puzzle"], fragmentsPerPuzzle, textTemplates["complete_plane"]);
-        Debug.Log("小飞机拼图完成！已获得速度提升效果");
+        ShowPuzzlePlaneUI(textTemplates["plane_puzzle"], fragmentsPerPuzzle, textTemplates["complete_plane"]);
     }
 
     void CompleteKnifePuzzle()
@@ -183,7 +179,6 @@ public class FragmentSystem : MonoBehaviour
         currentKnifeFragments = 0;
         characterScript.AddAttack(knifeAttackIncrease);
         ShowPuzzleUI(textTemplates["knife_puzzle"], fragmentsPerPuzzle, textTemplates["complete_knife"]);
-        Debug.Log("朴刀拼图完成！已获得攻击力提升效果");
     }
 
     void ShowPuzzleUI(string fragmentType, int currentCount, string message)
@@ -193,16 +188,33 @@ public class FragmentSystem : MonoBehaviour
             Time.timeScale = 0;
 
             // 使用预定义的模板组合文本，避免动态字符串拼接
-            fragmentTypeText.text = textTemplates["current_fragment"] + fragmentType;
             fragmentCountText.text = textTemplates["collect_progress"] + currentCount + "/" + fragmentsPerPuzzle;
             effectText.text = message;
 
             // 强制更新文本网格
-            fragmentTypeText.ForceMeshUpdate();
             fragmentCountText.ForceMeshUpdate();
             effectText.ForceMeshUpdate();
 
             puzzleUI.SetActive(true);
+            isUIActive = true;
+            uiCloseTime = Time.realtimeSinceStartup + uiDisplayTime;
+        }
+    }
+    void ShowPuzzlePlaneUI(string fragmentType, int currentCount, string message)
+    {
+        if (puzzlePlaneUI != null)
+        {
+            Time.timeScale = 0;
+
+            // 使用预定义的模板组合文本，避免动态字符串拼接
+            planeFragmentCountText.text = textTemplates["collect_progress"] + currentCount + "/" + fragmentsPerPuzzle;
+            planeEffectText.text = message;
+
+            // 强制更新文本网格
+            planeFragmentCountText.ForceMeshUpdate();
+            planeEffectText.ForceMeshUpdate();
+
+            puzzlePlaneUI.SetActive(true);
             isUIActive = true;
             uiCloseTime = Time.realtimeSinceStartup + uiDisplayTime;
         }
@@ -214,6 +226,15 @@ public class FragmentSystem : MonoBehaviour
         {
             Time.timeScale = 1;
             puzzleUI.SetActive(false);
+            isUIActive = false;
+        }
+    }
+    void ClosePuzzlePlaneUI()
+    {
+        if (puzzlePlaneUI != null)
+        {
+            Time.timeScale = 1;
+            puzzlePlaneUI.SetActive(false);
             isUIActive = false;
         }
     }
