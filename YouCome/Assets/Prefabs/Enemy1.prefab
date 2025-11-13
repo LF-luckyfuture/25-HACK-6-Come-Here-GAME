@@ -169,6 +169,7 @@ MonoBehaviour:
   damage: 5
   hitWaitTime: 1
   hitCounter: 0
+  attackRange: 1.5
 --- !u!114 &2742671514822406941
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -200,7 +201,7 @@ Animator:
   m_Controller: {fileID: 9100000, guid: b1f6616a61e83434fa8a068b45397762, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
-  m_ApplyRootMotion: 0
+  m_ApplyRootMotion: 1
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_WarningMessage: 
@@ -267,7 +268,7 @@ Animation:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5420069300374644846}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Animation: {fileID: 0}
   m_Animations: []
