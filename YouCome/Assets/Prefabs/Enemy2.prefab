@@ -164,11 +164,11 @@ MonoBehaviour:
   theRB: {fileID: 8245395719350512634}
   moveSpeed: 3.5
   target: {fileID: 0}
-  enemyHealth: 100
-  damage: 10
-  hitWaitTime: 1
+  enemyHealth: 50
+  damage: 40
+  hitWaitTime: 2
   hitCounter: 0
-  animator: {fileID: 0}
+  animator: {fileID: 311726915417938061}
   attackRange: 1.5
 --- !u!114 &3559879741221249070
 MonoBehaviour:
@@ -186,7 +186,7 @@ MonoBehaviour:
   - itemPrefab: {fileID: 2160047209810968109, guid: 091c2dec4d9076141a6cd2395a14413f,
       type: 3}
     dropChance: 1
-  dropForce: 2
+  dropForce: 7
   dropRadius: 0.5
 --- !u!61 &4198353184372819159
 BoxCollider2D:
@@ -295,7 +295,7 @@ SpriteRenderer:
   m_SortingLayerID: -105541197
   m_SortingLayer: 3
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: a445baa874d1d114e980036759291ee5, type: 3}
+  m_Sprite: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -303,6 +303,6 @@ SpriteRenderer:
   m_Size: {x: 32, y: 32}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
