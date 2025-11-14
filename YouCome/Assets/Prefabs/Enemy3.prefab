@@ -186,6 +186,33 @@ MonoBehaviour:
   - itemPrefab: {fileID: 2160047209810968109, guid: 091c2dec4d9076141a6cd2395a14413f,
       type: 3}
     dropChance: 1
+  - itemPrefab: {fileID: 2160047209810968109, guid: 091c2dec4d9076141a6cd2395a14413f,
+      type: 3}
+    dropChance: 1
+  - itemPrefab: {fileID: 2160047209810968109, guid: 091c2dec4d9076141a6cd2395a14413f,
+      type: 3}
+    dropChance: 1
+  - itemPrefab: {fileID: 2160047209810968109, guid: 091c2dec4d9076141a6cd2395a14413f,
+      type: 3}
+    dropChance: 1
+  - itemPrefab: {fileID: 2160047209810968109, guid: 091c2dec4d9076141a6cd2395a14413f,
+      type: 3}
+    dropChance: 1
+  - itemPrefab: {fileID: 2160047209810968109, guid: 091c2dec4d9076141a6cd2395a14413f,
+      type: 3}
+    dropChance: 1
+  - itemPrefab: {fileID: 2160047209810968109, guid: 091c2dec4d9076141a6cd2395a14413f,
+      type: 3}
+    dropChance: 1
+  - itemPrefab: {fileID: 2160047209810968109, guid: 091c2dec4d9076141a6cd2395a14413f,
+      type: 3}
+    dropChance: 1
+  - itemPrefab: {fileID: 2160047209810968109, guid: 091c2dec4d9076141a6cd2395a14413f,
+      type: 3}
+    dropChance: 1
+  - itemPrefab: {fileID: 2160047209810968109, guid: 091c2dec4d9076141a6cd2395a14413f,
+      type: 3}
+    dropChance: 1
   dropForce: 10
   dropRadius: 0.5
 --- !u!95 &9093801138594426550
@@ -293,7 +320,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0.019904733, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -304,5 +331,5 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 12.8, y: 12.8}
+  m_Size: {x: 5.117077, y: 8.500748}
   m_EdgeRadius: 0

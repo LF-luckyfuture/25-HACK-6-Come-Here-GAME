@@ -253,6 +253,7 @@ public class EnemyController : MonoBehaviour
         enemyHealth -= damageAmount;
         if (enemyHealth <= 0f)
         {
+          
             if (enemyDrop != null)
             {
                 enemyDrop.DropLoot();

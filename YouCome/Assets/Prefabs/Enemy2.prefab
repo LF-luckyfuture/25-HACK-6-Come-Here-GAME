@@ -186,6 +186,24 @@ MonoBehaviour:
   - itemPrefab: {fileID: 2160047209810968109, guid: 091c2dec4d9076141a6cd2395a14413f,
       type: 3}
     dropChance: 1
+  - itemPrefab: {fileID: 2160047209810968109, guid: 091c2dec4d9076141a6cd2395a14413f,
+      type: 3}
+    dropChance: 1
+  - itemPrefab: {fileID: 2160047209810968109, guid: 091c2dec4d9076141a6cd2395a14413f,
+      type: 3}
+    dropChance: 1
+  - itemPrefab: {fileID: 2160047209810968109, guid: 091c2dec4d9076141a6cd2395a14413f,
+      type: 3}
+    dropChance: 1
+  - itemPrefab: {fileID: 2160047209810968109, guid: 091c2dec4d9076141a6cd2395a14413f,
+      type: 3}
+    dropChance: 1
+  - itemPrefab: {fileID: 2160047209810968109, guid: 091c2dec4d9076141a6cd2395a14413f,
+      type: 3}
+    dropChance: 1
+  - itemPrefab: {fileID: 2160047209810968109, guid: 091c2dec4d9076141a6cd2395a14413f,
+      type: 3}
+    dropChance: 1
   dropForce: 7
   dropRadius: 0.5
 --- !u!61 &4198353184372819159
