@@ -17,12 +17,13 @@ public class EnemyController : MonoBehaviour
     public Animator animator;
     public float attackRange = 1.5f;
 
-    // 动画参数名称 - 确保所有敌人使用相同的参数名
+    // 动画参数名称
     private const string IS_WALKING_PARAM = "IsWalking";
     private const string ATTACK_TRIGGER_PARAM = "Attack";
 
     private EnemyDrop enemyDrop;
     private bool isAttacking = false;
+    private SpriteRenderer spriteRenderer; // 缓存SpriteRenderer
 
     void Start()
     {
@@ -31,6 +32,9 @@ public class EnemyController : MonoBehaviour
 
         enemyHealth = 100f;
         enemyDrop = GetComponent<EnemyDrop>();
+
+        // 缓存SpriteRenderer
+        spriteRenderer = GetComponent<SpriteRenderer>();
 
         // 获取Animator组件
         if (animator == null)
@@ -46,6 +50,14 @@ public class EnemyController : MonoBehaviour
         {
             Debug.Log("EnemyController初始化完成 - 敌人: " + gameObject.name);
         }
+
+        // 检查Rigidbody2D约束
+        if (theRB != null)
+        {
+            Debug.Log("Rigidbody2D约束 - FreezeRotation: " + theRB.freezeRotation +
+                     ", FreezePositionX: " + theRB.constraints.HasFlag(RigidbodyConstraints2D.FreezePositionX) +
+                     ", FreezePositionY: " + theRB.constraints.HasFlag(RigidbodyConstraints2D.FreezePositionY));
+        }
     }
 
     void Update()
@@ -54,7 +66,7 @@ public class EnemyController : MonoBehaviour
         if (target == null)
         {
             FindPlayerTarget();
-            return;
+            if (target == null) return; // 如果还是找不到，直接返回
         }
 
         if (animator == null) return;
@@ -95,6 +107,12 @@ public class EnemyController : MonoBehaviour
         }
     }
 
+    void FixedUpdate()
+    {
+        // 在FixedUpdate中处理物理移动，确保平滑
+        // 移动逻辑现在主要在Update中处理，这里只处理翻转
+    }
+
     void FindPlayerTarget()
     {
         // 方法1：通过Tag寻找玩家
@@ -102,7 +120,7 @@ public class EnemyController : MonoBehaviour
         if (player != null)
         {
             target = player.transform;
-            Debug.Log("找到玩家目标: " + target.name);
+            Debug.Log("找到玩家目标: " + target.name + " 位置: " + target.position);
             return;
         }
 
@@ -131,34 +149,43 @@ public class EnemyController : MonoBehaviour
     {
         if (!isAttacking && target != null)
         {
-            // 计算移动方向并应用速度
+            // 计算移动方向
             Vector2 moveDirection = (target.position - transform.position).normalized;
+
+            // 调试移动方向
+            Debug.Log("移动方向: " + moveDirection + " 目标位置: " + target.position + " 敌人位置: " + transform.position);
+
+            // 应用速度
             theRB.velocity = moveDirection * moveSpeed;
 
-            // 可选：根据移动方向翻转敌人 sprite
+            // 根据移动方向翻转敌人 sprite
             FlipSprite(moveDirection);
         }
     }
 
     void StopMoving()
     {
-        theRB.velocity = Vector2.zero;
+        if (theRB != null)
+        {
+            theRB.velocity = Vector2.zero;
+        }
     }
 
     void FlipSprite(Vector2 direction)
     {
-        // 如果敌人有SpriteRenderer，可以根据移动方向翻转
-        SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
+        // 使用缓存的SpriteRenderer
         if (spriteRenderer != null)
         {
-            if (direction.x > 0)
+            // 只有当X方向有显著移动时才翻转，避免抖动
+            if (Mathf.Abs(direction.x) > 0.1f) // 添加阈值避免微小移动导致的抖动
             {
-                spriteRenderer.flipX = false; // 面向右
+                spriteRenderer.flipX = direction.x < 0;
             }
-            else if (direction.x < 0)
-            {
-                spriteRenderer.flipX = true; // 面向左
-            }
+        }
+        else
+        {
+            // 如果没有SpriteRenderer，尝试获取一次
+            spriteRenderer = GetComponent<SpriteRenderer>();
         }
     }
 
@@ -211,13 +238,12 @@ public class EnemyController : MonoBehaviour
             {
                 // 玩家还在攻击范围外，立即开始追踪
                 SetWalkingAnimation(true);
-                MoveTowardsTarget(); // 重要：立即开始移动！
+                // 不需要调用MoveTowardsTarget()，因为Update会处理
             }
             else
             {
                 // 玩家仍在攻击范围内，保持准备攻击状态
                 SetWalkingAnimation(false);
-                // 不调用StopMoving()，因为可能已经在移动
             }
         }
     }
@@ -247,6 +273,13 @@ public class EnemyController : MonoBehaviour
         {
             Gizmos.color = Color.blue;
             Gizmos.DrawLine(transform.position, target.position);
+
+            // 显示当前速度方向
+            if (theRB != null)
+            {
+                Gizmos.color = Color.green;
+                Gizmos.DrawRay(transform.position, theRB.velocity.normalized * 1f);
+            }
         }
     }
 }
