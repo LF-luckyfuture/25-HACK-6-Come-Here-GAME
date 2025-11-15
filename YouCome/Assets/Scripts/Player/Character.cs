@@ -128,44 +128,40 @@ public class Character : MonoBehaviour
     }
     public void ExpTest()
     {
-        maxPlayerExp =(int)(50f * (1f + (playerLevel - 1f) * 0.5f) * (playerLevel + 1f));
-        bool leveledUp = false;
+        maxPlayerExp = (int)(50f * (1f + (playerLevel - 1f) * 0.5f) * (playerLevel + 1f));
 
-        if (currentExp>=maxPlayerExp)
+        // 添加调试信息
+        Debug.Log($"当前经验: {currentExp}/{maxPlayerExp}, 等级: {playerLevel}");
+
+        // 检查是否升级
+        if (currentExp >= maxPlayerExp && playerLevel < maxLevel)
         {
-            if (currentExp>maxPlayerExp)
+            // 升级逻辑
+            if (currentExp > maxPlayerExp)
             {
-                if (playerLevel < maxLevel)
-                {
-                    currentExp = currentExp - maxPlayerExp;
-                    playerLevel++;
-                    currentHealth = maxHealth;
-                }
-                else
-                {
-                    currentExp = maxPlayerExp;
-                }
+                currentExp = currentExp - maxPlayerExp;
             }
             else
             {
-                if (playerLevel<maxLevel)
-                {
-                    currentExp = 0;
-                    playerLevel++;
-                    currentHealth = maxHealth;
-                }
-                else
-                {
-                    currentExp = maxPlayerExp;
-                }
-            }
-            if (leveledUp)
-            {
-                OnLevelUp();
+                currentExp = 0;
             }
 
+            playerLevel++;
+            currentHealth = maxHealth;
+
+            // 调用升级方法
+            OnLevelUp();
+
+            // 更新UI
             UpdateEXPUI();
             UpdateLevelUI();
+
+            Debug.Log($"升级！新等级: {playerLevel}");
+        }
+        else if (playerLevel >= maxLevel)
+        {
+            currentExp = maxPlayerExp;
+            UpdateEXPUI();
         }
     }
     public void PlayerValueTest()

@@ -11,7 +11,7 @@ public class EnemyController : MonoBehaviour
 
     public float damage;
     public float hitWaitTime = 1f;
-    public Color hurtcolor= Color.red;
+    public Color hurtcolor = Color.red;
     public float flashDuration = 0.2f;
     public float shakeIntensity = 0.1f;
     public float shakeFrequency = 20f;
@@ -19,7 +19,8 @@ public class EnemyController : MonoBehaviour
 
     [Header("动画组件")]
     public Animator animator;
-    public float attackRange = 1.5f;
+    [Header("攻击范围设置")]
+    public float attackRange = 3f; // 从1.5f增加到3f，扩大攻击范围
 
     // 动画参数名称
     private const string IS_WALKING_PARAM = "IsWalking";
@@ -27,9 +28,9 @@ public class EnemyController : MonoBehaviour
 
     private EnemyDrop enemyDrop;
     private bool isAttacking = false;
-    private SpriteRenderer spriteRenderer; // 缓存SpriteRenderer
-    private Color Color;
-    private Vector3 position;
+    private SpriteRenderer spriteRenderer;
+    private Color originalColor;
+    private Vector3 originalPosition;
     private bool isFlashing = false;
 
     void Start()
@@ -53,18 +54,6 @@ public class EnemyController : MonoBehaviour
         {
             Debug.LogError("Animator未找到！敌人: " + gameObject.name);
         }
-        else
-        {
-            Debug.Log("EnemyController初始化完成 - 敌人: " + gameObject.name);
-        }
-
-        // 检查Rigidbody2D约束
-        if (theRB != null)
-        {
-            Debug.Log("Rigidbody2D约束 - FreezeRotation: " + theRB.freezeRotation +
-                     ", FreezePositionX: " + theRB.constraints.HasFlag(RigidbodyConstraints2D.FreezePositionX) +
-                     ", FreezePositionY: " + theRB.constraints.HasFlag(RigidbodyConstraints2D.FreezePositionY));
-        }
     }
 
     void Update()
@@ -73,7 +62,7 @@ public class EnemyController : MonoBehaviour
         if (target == null)
         {
             FindPlayerTarget();
-            if (target == null) return; // 如果还是找不到，直接返回
+            if (target == null) return;
         }
 
         if (animator == null) return;
@@ -113,17 +102,15 @@ public class EnemyController : MonoBehaviour
             hitCounter -= Time.deltaTime;
         }
     }
+
     private void Awake()
     {
-        spriteRenderer=GetComponent<SpriteRenderer>();
-        Color = spriteRenderer.color;
-        position = transform.localPosition;
-    }
-
-    void FixedUpdate()
-    {
-        // 在FixedUpdate中处理物理移动，确保平滑
-        // 移动逻辑现在主要在Update中处理，这里只处理翻转
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer != null)
+        {
+            originalColor = spriteRenderer.color;
+        }
+        originalPosition = transform.localPosition;
     }
 
     void FindPlayerTarget()
@@ -133,7 +120,6 @@ public class EnemyController : MonoBehaviour
         if (player != null)
         {
             target = player.transform;
-            Debug.Log("找到玩家目标: " + target.name + " 位置: " + target.position);
             return;
         }
 
@@ -142,7 +128,6 @@ public class EnemyController : MonoBehaviour
         if (character != null)
         {
             target = character.transform;
-            Debug.Log("通过Character组件找到玩家目标");
             return;
         }
 
@@ -151,7 +136,6 @@ public class EnemyController : MonoBehaviour
         if (player != null)
         {
             target = player.transform;
-            Debug.Log("通过名称找到玩家目标");
             return;
         }
 
@@ -165,14 +149,11 @@ public class EnemyController : MonoBehaviour
             // 计算移动方向
             Vector2 moveDirection = (target.position - transform.position).normalized;
 
-            // 调试移动方向
-            Debug.Log("移动方向: " + moveDirection + " 目标位置: " + target.position + " 敌人位置: " + transform.position);
-
             // 应用速度
             theRB.velocity = moveDirection * moveSpeed;
 
-            // 根据移动方向翻转敌人 sprite
-            FlipSprite(moveDirection);
+            // 改进的翻转逻辑：基于目标位置
+            FlipSpriteBasedOnTarget();
         }
     }
 
@@ -184,21 +165,14 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    void FlipSprite(Vector2 direction)
+    // 改进的翻转方法：基于目标位置而不是移动方向
+    void FlipSpriteBasedOnTarget()
     {
-        // 使用缓存的SpriteRenderer
-        if (spriteRenderer != null)
+        if (spriteRenderer != null && target != null)
         {
-            // 只有当X方向有显著移动时才翻转，避免抖动
-            if (Mathf.Abs(direction.x) > 0.1f) // 添加阈值避免微小移动导致的抖动
-            {
-                spriteRenderer.flipX = direction.x < 0;
-            }
-        }
-        else
-        {
-            // 如果没有SpriteRenderer，尝试获取一次
-            spriteRenderer = GetComponent<SpriteRenderer>();
+            // 直接根据玩家在敌人的左边还是右边来翻转
+            bool shouldFlip = target.position.x < transform.position.x;
+            spriteRenderer.flipX = shouldFlip;
         }
     }
 
@@ -224,7 +198,6 @@ public class EnemyController : MonoBehaviour
         if (Character.instance != null)
         {
             Character.instance.TakeDamage(damage);
-            Debug.Log(gameObject.name + " 对玩家造成 " + damage + " 点伤害");
         }
     }
 
@@ -232,7 +205,6 @@ public class EnemyController : MonoBehaviour
 
     public void OnAttackStart()
     {
-        Debug.Log(gameObject.name + " 攻击开始");
         isAttacking = true;
         StopMoving();
         SetWalkingAnimation(false);
@@ -240,7 +212,6 @@ public class EnemyController : MonoBehaviour
 
     public void OnAttackEnd()
     {
-        Debug.Log(gameObject.name + " 攻击结束");
         isAttacking = false;
 
         // 攻击结束后立即检查当前状态并恢复相应行为
@@ -251,7 +222,6 @@ public class EnemyController : MonoBehaviour
             {
                 // 玩家还在攻击范围外，立即开始追踪
                 SetWalkingAnimation(true);
-                // 不需要调用MoveTowardsTarget()，因为Update会处理
             }
             else
             {
@@ -268,7 +238,6 @@ public class EnemyController : MonoBehaviour
         enemyHealth -= damageAmount;
         if (enemyHealth <= 0f)
         {
-          
             if (enemyDrop != null)
             {
                 enemyDrop.DropLoot();
@@ -277,48 +246,28 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    // 调试可视化
-    private void OnDrawGizmosSelected()
-    {
-        // 攻击范围
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, attackRange);
-
-        // 移动方向指示
-        if (Application.isPlaying && target != null)
-        {
-            Gizmos.color = Color.blue;
-            Gizmos.DrawLine(transform.position, target.position);
-
-            // 显示当前速度方向
-            if (theRB != null)
-            {
-                Gizmos.color = Color.green;
-                Gizmos.DrawRay(transform.position, theRB.velocity.normalized * 1f);
-            }
-        }
-    }
     private System.Collections.IEnumerator HurtEffectCoroutine()
     {
         isFlashing = true;
         float elapsedTime = 0f;
-        while (elapsedTime<flashDuration)
+        while (elapsedTime < flashDuration)
         {
-            Color currentColor = Color.Lerp(hurtcolor, Color, elapsedTime / flashDuration);
+            Color currentColor = Color.Lerp(hurtcolor, originalColor, elapsedTime / flashDuration);
             SetMonsterColor(currentColor);
-            float shakeX=Mathf.Sin(elapsedTime*shakeFrequency)*shakeIntensity;
-            float shakeY=Mathf.Cos(elapsedTime*shakeFrequency)*shakeIntensity;
-            transform.localPosition = position + new Vector3(shakeX, shakeY, 0);
+            float shakeX = Mathf.Sin(elapsedTime * shakeFrequency) * shakeIntensity;
+            float shakeY = Mathf.Cos(elapsedTime * shakeFrequency) * shakeIntensity;
+            transform.localPosition = originalPosition + new Vector3(shakeX, shakeY, 0);
             elapsedTime += Time.deltaTime;
             yield return null;
         }
-        SetMonsterColor(Color);
-        transform.localPosition = position;
-        isFlashing=false;
+        SetMonsterColor(originalColor);
+        transform.localPosition = originalPosition;
+        isFlashing = false;
     }
+
     private void SetMonsterColor(Color targetColor)
     {
-        if (spriteRenderer!=null)
-         spriteRenderer.color = targetColor;
+        if (spriteRenderer != null)
+            spriteRenderer.color = targetColor;
     }
 }

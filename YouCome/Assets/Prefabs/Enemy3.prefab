@@ -191,7 +191,8 @@ MonoBehaviour:
       type: 3}
     dropChance: 5
   dropForce: 10
-  dropRadius: 0.5
+  dropRadius: 0.1
+  expReward: 20
 --- !u!95 &9093801138594426550
 Animator:
   serializedVersion: 5

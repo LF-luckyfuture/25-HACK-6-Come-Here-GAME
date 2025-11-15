@@ -191,7 +191,8 @@ MonoBehaviour:
       type: 3}
     dropChance: 5
   dropForce: 7
-  dropRadius: 0.5
+  dropRadius: 0.1
+  expReward: 10
 --- !u!61 &4198353184372819159
 BoxCollider2D:
   m_ObjectHideFlags: 0
