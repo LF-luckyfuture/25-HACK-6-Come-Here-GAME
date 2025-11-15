@@ -167,6 +167,10 @@ MonoBehaviour:
   enemyHealth: 150
   damage: 60
   hitWaitTime: 3
+  hurtcolor: {r: 1, g: 0, b: 0, a: 1}
+  flashDuration: 0.2
+  shakeIntensity: 0.1
+  shakeFrequency: 20
   hitCounter: 0
   animator: {fileID: 9093801138594426550}
   attackRange: 1.5
@@ -185,34 +189,7 @@ MonoBehaviour:
   dropItems:
   - itemPrefab: {fileID: 2160047209810968109, guid: 091c2dec4d9076141a6cd2395a14413f,
       type: 3}
-    dropChance: 1
-  - itemPrefab: {fileID: 2160047209810968109, guid: 091c2dec4d9076141a6cd2395a14413f,
-      type: 3}
-    dropChance: 1
-  - itemPrefab: {fileID: 2160047209810968109, guid: 091c2dec4d9076141a6cd2395a14413f,
-      type: 3}
-    dropChance: 1
-  - itemPrefab: {fileID: 2160047209810968109, guid: 091c2dec4d9076141a6cd2395a14413f,
-      type: 3}
-    dropChance: 1
-  - itemPrefab: {fileID: 2160047209810968109, guid: 091c2dec4d9076141a6cd2395a14413f,
-      type: 3}
-    dropChance: 1
-  - itemPrefab: {fileID: 2160047209810968109, guid: 091c2dec4d9076141a6cd2395a14413f,
-      type: 3}
-    dropChance: 1
-  - itemPrefab: {fileID: 2160047209810968109, guid: 091c2dec4d9076141a6cd2395a14413f,
-      type: 3}
-    dropChance: 1
-  - itemPrefab: {fileID: 2160047209810968109, guid: 091c2dec4d9076141a6cd2395a14413f,
-      type: 3}
-    dropChance: 1
-  - itemPrefab: {fileID: 2160047209810968109, guid: 091c2dec4d9076141a6cd2395a14413f,
-      type: 3}
-    dropChance: 1
-  - itemPrefab: {fileID: 2160047209810968109, guid: 091c2dec4d9076141a6cd2395a14413f,
-      type: 3}
-    dropChance: 1
+    dropChance: 5
   dropForce: 10
   dropRadius: 0.5
 --- !u!95 &9093801138594426550
