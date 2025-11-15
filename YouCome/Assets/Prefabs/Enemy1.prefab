@@ -168,6 +168,10 @@ MonoBehaviour:
   enemyHealth: 25
   damage: 20
   hitWaitTime: 1
+  hurtcolor: {r: 1, g: 0, b: 0, a: 1}
+  flashDuration: 0.4
+  shakeIntensity: 0.2
+  shakeFrequency: 20
   hitCounter: 0
   animator: {fileID: 7897775553367470681}
   attackRange: 1.5

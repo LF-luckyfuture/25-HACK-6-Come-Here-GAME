@@ -11,6 +11,10 @@ public class EnemyController : MonoBehaviour
 
     public float damage;
     public float hitWaitTime = 1f;
+    public Color hurtcolor= Color.red;
+    public float flashDuration = 0.2f;
+    public float shakeIntensity = 0.1f;
+    public float shakeFrequency = 20f;
     public float hitCounter;
 
     [Header("¶¯»­×é¼þ")]
@@ -24,6 +28,9 @@ public class EnemyController : MonoBehaviour
     private EnemyDrop enemyDrop;
     private bool isAttacking = false;
     private SpriteRenderer spriteRenderer; // »º´æSpriteRenderer
+    private Color Color;
+    private Vector3 position;
+    private bool isFlashing = false;
 
     void Start()
     {
@@ -105,6 +112,12 @@ public class EnemyController : MonoBehaviour
         {
             hitCounter -= Time.deltaTime;
         }
+    }
+    private void Awake()
+    {
+        spriteRenderer=GetComponent<SpriteRenderer>();
+        Color = spriteRenderer.color;
+        position = transform.localPosition;
     }
 
     void FixedUpdate()
@@ -250,6 +263,8 @@ public class EnemyController : MonoBehaviour
 
     public void TakeDamage(float damageAmount)
     {
+        if (isFlashing) return;
+        StartCoroutine(HurtEffectCoroutine());
         enemyHealth -= damageAmount;
         if (enemyHealth <= 0f)
         {
@@ -282,5 +297,28 @@ public class EnemyController : MonoBehaviour
                 Gizmos.DrawRay(transform.position, theRB.velocity.normalized * 1f);
             }
         }
+    }
+    private System.Collections.IEnumerator HurtEffectCoroutine()
+    {
+        isFlashing = true;
+        float elapsedTime = 0f;
+        while (elapsedTime<flashDuration)
+        {
+            Color currentColor = Color.Lerp(hurtcolor, Color, elapsedTime / flashDuration);
+            SetMonsterColor(currentColor);
+            float shakeX=Mathf.Sin(elapsedTime*shakeFrequency)*shakeIntensity;
+            float shakeY=Mathf.Cos(elapsedTime*shakeFrequency)*shakeIntensity;
+            transform.localPosition = position + new Vector3(shakeX, shakeY, 0);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+        SetMonsterColor(Color);
+        transform.localPosition = position;
+        isFlashing=false;
+    }
+    private void SetMonsterColor(Color targetColor)
+    {
+        if (spriteRenderer!=null)
+         spriteRenderer.color = targetColor;
     }
 }

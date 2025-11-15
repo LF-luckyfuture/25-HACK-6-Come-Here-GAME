@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GameSettingController : MonoBehaviour
 {
@@ -26,5 +26,9 @@ public class GameSettingController : MonoBehaviour
         isGamePaused=false;
         gameUI.ExitSetting();
         Time.timeScale = 1f;
+    }
+    public void BackStart()
+    {
+        SceneManager.LoadScene(0);
     }
 }
