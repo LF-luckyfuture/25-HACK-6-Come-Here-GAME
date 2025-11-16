@@ -21,8 +21,8 @@ public class Character : MonoBehaviour
     [SerializeField]public int playerLevel;
     [SerializeField]public int currentExp;
     public float moveSpeed;
-    public float macheteAttackCooldown=0.75f;
-    public float fistAttackCooldown=0.25f;
+    public float macheteAttackCooldown=0.5f;
+    public float fistAttackCooldown=0.2f;
     public float regenRate=2f;
     public float regenInterval=1f;
     public int maxPlayerExp;
