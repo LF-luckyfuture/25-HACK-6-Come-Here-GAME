@@ -12,8 +12,6 @@ public class EnemyDrop : MonoBehaviour
     }
     public List<DropItem> dropItems;
     public float dropForce = 2f;
-    public float dropRadius = 0.5f;
-
     [Header("经验值设置")]
     public int expReward = 10;
 
@@ -24,7 +22,8 @@ public class EnemyDrop : MonoBehaviour
         {
             if (Random.value <= dropItem.dropChance)
             {
-                Vector2 dropPosition = transform.position + Random.insideUnitSphere * dropRadius;
+                Vector3 dropPosition = transform.position;
+                dropPosition.y=transform.position.y;
                 GameObject droppedItem = Instantiate(dropItem.itemPrefab, dropPosition, Quaternion.identity);
             }
         }
